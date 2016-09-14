@@ -3,13 +3,16 @@ import os
 import datetime
 import json
 import zipfile
+import sys
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
 
+base = os.getcwd()
 
 def load_evernote_enex(evernote_enex):
     ''' Takes evernote file and returns a list of
     dictionary notes'''
+    print evernote_enex
     tree = ET.parse(evernote_enex)
     root = tree.getroot()
     nlist = []
@@ -94,21 +97,24 @@ def write_other_files(directory='scratch/notes-db'):
     if not os.path.exists('notes'):
         os.mkdir('notes')
 
-base = os.getcwd()
-# evernote_enex_file = 'evernote.enex'
-#
-# nlist = load_evernote_enex(evernote_enex_file)
-# for i in nlist:
-#     note_json, note_content, note_uuid = notedict_to_laverna_note(i)
-#     write_laverna_note_files(note_json, note_content, note_uuid)
-# write_other_files()
+def create_zip(directory, zip_file_name):
+    with zipfile.ZipFile(zip_file_name, 'w') as zip:
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                file = os.path.join(root, file)
+                print file
+                zip.write(file)
 
-def create_zip(directory):
-    with zipfile.ZipFile('zipfile.zip', 'w') as zip:
-        for root, dir, file in os.walk(directory):
-            print root
-            if os.path.isfile(file):
-                print os.path.join(base, file)
-                zip.write(os.path.join(base, file))
-        zip.close()
-create_zip(base)
+
+if __name__ == '__main__':
+    evernote_enex_file = sys.argv[1]
+    nlist = load_evernote_enex(evernote_enex_file)
+    for i in nlist:
+        note_json, note_content, note_uuid = notedict_to_laverna_note(i)
+        write_laverna_note_files(note_json, note_content, note_uuid)
+    write_other_files()
+    create_zip('scratch', 'evernote.zip')
+
+
+#create_zip(base)
+
