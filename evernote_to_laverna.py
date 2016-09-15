@@ -76,10 +76,17 @@ def write_laverna_note_files(note_uuid, note_json, note_content, directory='scra
         content_file.write(note_content)
 
 
-def write_other_files(directory='scratch/notes-db'):
-    scratch = os.path.join(base, directory)
-    if not os.path.exists(scratch):
-        os.mkdir(scratch)
+def create_skeleton(directory='scratch'):
+    if not os.path.exists(directory):
+        os.mkdir(directory)
+
+    notesdb_directory = os.path.join(directory, 'notes-db')
+    if not os.path.exists(notesdb_directory):
+        os.mkdir(notesdb_directory)
+
+    notes_directory = os.path.join(notesdb_directory, 'notes')
+    if not os.path.exists(notes_directory):
+        os.mkdir(notes_directory)
 
     empty = []
     notebook_file = os.path.join(base, directory, 'notebooks.json')
@@ -108,13 +115,9 @@ def create_zip(directory, zip_file_name):
 
 if __name__ == '__main__':
     evernote_enex_file = sys.argv[1]
+    create_skeleton()
     nlist = load_evernote_enex(evernote_enex_file)
     for i in nlist:
         note_json, note_content, note_uuid = notedict_to_laverna_note(i)
         write_laverna_note_files(note_json, note_content, note_uuid)
-    write_other_files()
-    create_zip('scratch', 'evernote.zip')
-
-
-#create_zip(base)
-
+    create_zip('scratch', 'laverna.zip')
